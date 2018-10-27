@@ -5,51 +5,45 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.corentin.evanno.lebonson.R
-import com.corentin.evanno.lebonson.backend.BackendManager
-import com.corentin.evanno.lebonson.di.DaggerApplicationComponent
 import com.corentin.evanno.lebonson.di.DaggerComponents
-import dagger.android.AndroidInjection
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
+import com.corentin.evanno.lebonson.model.Album
+import kotlinx.android.synthetic.main.fragment_albums_list.*
 import javax.inject.Inject
+import androidx.recyclerview.widget.GridLayoutManager
+
 
 class AlbumsListFragment : Fragment() {
 
     @Inject
-    lateinit var backendManager: BackendManager
+    lateinit var albumsListViewModelFactory: AlbumsListViewModelFactory
 
-    private var disposable: Disposable? = null
+    private var viewModel: AlbumListViewModel? = null
+
+    private var adapter: AlbumsListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DaggerComponents.get().inject(this)
+
+        viewModel = ViewModelProviders.of(this, albumsListViewModelFactory).get(AlbumListViewModel::class.java)
+        viewModel?.albums()?.observe(this, Observer {
+            handleData(it)
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_albums_list, container, false)
 
-
-    override fun onStart() {
-        super.onStart()
-        disposable =  backendManager.getSongs()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        {
-                            System.out.println("SUCCESS: Number of songs ${it.size}")
-                        },
-                        {
-                            error ->
-                            System.out.println("ERROR")
-                        }
-                )
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        albums_list.layoutManager = GridLayoutManager(context, 3)
     }
 
-    override fun onDestroy() {
-        disposable?.dispose()
-        super.onDestroy()
+    private fun handleData(albums: List<Album>) {
+        adapter = AlbumsListAdapter(albums, context)
+        albums_list.adapter = adapter
     }
 }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">LeBonSon</string>
+    <string name="album_name">Album %1$d</string>
+    <string name="songs_number">- %1$d song(s)</string>
 </resources>
