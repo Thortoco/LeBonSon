@@ -7,13 +7,15 @@ import com.corentin.evanno.lebonson.model.Album
 import com.corentin.evanno.lebonson.model.Song
 import com.corentin.evanno.lebonson.model.localdb.SongDAO
 import com.corentin.evanno.lebonson.model.localdb.SongDBHolder
+import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-class AlbumDetailViewModel(var dao: SongDAO?) : ViewModel() {
+class AlbumDetailViewModel(var dao: SongDAO?, var androidScheduler: Scheduler,
+                           var processScheduler: Scheduler) : ViewModel() {
 
     private var disposable: Disposable? = null
     private val songs: MutableLiveData<List<Song>> = MutableLiveData()
@@ -32,8 +34,8 @@ class AlbumDetailViewModel(var dao: SongDAO?) : ViewModel() {
 
     private fun fetchLocalRepository(albumId: Long) {
         disposable = dao?.getSongsByAlbumId(albumId)
-                ?.subscribeOn(Schedulers.io())
-                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(processScheduler)
+                ?.observeOn(androidScheduler)
                 ?.subscribe( {
                     songsList ->
                     songs.value = songsList

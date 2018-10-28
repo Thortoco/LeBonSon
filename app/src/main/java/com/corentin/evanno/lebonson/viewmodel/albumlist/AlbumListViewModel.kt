@@ -5,14 +5,17 @@ import androidx.lifecycle.ViewModel
 import com.corentin.evanno.lebonson.model.backend.BackendManager
 import com.corentin.evanno.lebonson.model.Album
 import com.corentin.evanno.lebonson.model.Song
+import com.corentin.evanno.lebonson.model.backend.IBackendManager
 import com.corentin.evanno.lebonson.model.localdb.SongDAO
 import io.reactivex.Completable
+import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-class AlbumListViewModel(var backendManager: BackendManager, var dao: SongDAO?) : ViewModel() {
+class AlbumListViewModel(var backendManager: IBackendManager, var dao: SongDAO?,
+                         var androidScheduler: Scheduler, var processScheduler: Scheduler) : ViewModel() {
 
     private var disposable: Disposable? = null
     private val albums: MutableLiveData<List<Album>> = MutableLiveData()
@@ -30,8 +33,8 @@ class AlbumListViewModel(var backendManager: BackendManager, var dao: SongDAO?) 
 
     private fun fetchLocalRepository() {
         disposable = dao?.getAll()
-                ?.subscribeOn(Schedulers.io())
-                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribeOn(processScheduler)
+                ?.observeOn(androidScheduler)
                 ?.subscribe({ songs ->
                         if (songs.isEmpty()) {
                             fetchRemoteRepository()
@@ -49,8 +52,8 @@ class AlbumListViewModel(var backendManager: BackendManager, var dao: SongDAO?) 
 
     fun fetchRemoteRepository() {
         disposable = backendManager.getSongs()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(processScheduler)
+                .observeOn(androidScheduler)
                 .subscribe(
                         { songs ->
                             Timber.d("Success Number of songs ${songs.size}")

@@ -6,7 +6,11 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-class BackendManager {
+interface IBackendManager {
+    fun getSongs(): Observable<List<Song>>
+}
+
+class BackendManager: IBackendManager {
 
     private val backendService: ILeBonSonBackend
 
@@ -20,7 +24,7 @@ class BackendManager {
         backendService = retrofit.create<ILeBonSonBackend>(ILeBonSonBackend::class.java)
     }
 
-    fun getSongs(): Observable<List<Song>> {
+    override fun getSongs(): Observable<List<Song>> {
        return backendService.songsList()
     }
 }
