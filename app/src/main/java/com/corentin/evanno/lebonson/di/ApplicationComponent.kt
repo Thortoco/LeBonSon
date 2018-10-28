@@ -1,16 +1,29 @@
 package com.corentin.evanno.lebonson.di
 
-import com.corentin.evanno.lebonson.ui.AlbumsListFragment
+import android.app.Application
+import com.corentin.evanno.lebonson.AndroidApp
+import com.corentin.evanno.lebonson.ui.albumdetail.AlbumDetailFragment
+import com.corentin.evanno.lebonson.ui.albumlist.AlbumsListFragment
 import com.corentin.evanno.lebonson.ui.MainActivity
-import dagger.Component
-import javax.inject.Singleton
 import dagger.BindsInstance
+import dagger.Component
+import dagger.android.AndroidInjectionModule
+import javax.inject.Singleton
+import dagger.android.support.AndroidSupportInjectionModule
+
+
 
 
 
 @Singleton
-@Component(modules = [AndroidModule::class, ManagerModule::class])
+@Component(modules = [AndroidSupportInjectionModule::class, AndroidModule::class, ManagerModule::class, BuildersModule::class])
 interface ApplicationComponent {
-    fun inject(mainActivity: MainActivity)
-    fun inject(albumsListFragment: AlbumsListFragment)
+    @Component.Builder
+     interface Builder {
+        @BindsInstance
+        fun application(application: AndroidApp): Builder
+
+        fun build(): ApplicationComponent
+    }
+    fun inject(androidApp: AndroidApp)
 }

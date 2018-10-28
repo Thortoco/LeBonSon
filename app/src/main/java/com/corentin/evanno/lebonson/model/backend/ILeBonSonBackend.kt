@@ -1,4 +1,4 @@
-package com.corentin.evanno.lebonson.backend
+package com.corentin.evanno.lebonson.model.backend
 
 import com.corentin.evanno.lebonson.model.Song
 import io.reactivex.Observable

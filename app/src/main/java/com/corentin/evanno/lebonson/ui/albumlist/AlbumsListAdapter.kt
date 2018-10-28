@@ -1,4 +1,4 @@
-package com.corentin.evanno.lebonson.ui
+package com.corentin.evanno.lebonson.ui.albumlist
 
 import android.content.Context
 import android.graphics.Color
@@ -15,7 +15,12 @@ import kotlinx.android.synthetic.main.album_item.view.*
 import timber.log.Timber
 import java.lang.NumberFormatException
 
-class AlbumsListAdapter(private val albums: List<Album>, private val context: Context?) : RecyclerView.Adapter<AlbumsListAdapter.ViewHolder>() {
+class AlbumsListAdapter(private val albums: List<Album>, private val context: Context?, private val listener: Listener)
+    : RecyclerView.Adapter<AlbumsListAdapter.ViewHolder>() {
+
+    interface Listener {
+        fun onAlbumClicked(albumId: Long)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item, parent,false))
@@ -35,7 +40,9 @@ class AlbumsListAdapter(private val albums: List<Album>, private val context: Co
                 Timber.e("Invalid color, falling back to default")
             }
         }
-        holder.albumContainer.setOnClickListener {  }
+        holder.albumContainer.setOnClickListener {
+            listener.onAlbumClicked(albums[position].id)
+        }
     }
 
     inner class ViewHolder(val view : View) : RecyclerView.ViewHolder(view) {
