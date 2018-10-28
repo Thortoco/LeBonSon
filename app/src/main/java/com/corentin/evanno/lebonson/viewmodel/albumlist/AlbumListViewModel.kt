@@ -41,12 +41,13 @@ class AlbumListViewModel(var backendManager: BackendManager, var dao: SongDAO?) 
                 },
                         {
                             Timber.e("Error retrieving songs in db")
+                            fetchRemoteRepository()
                         }
 
                 )
     }
 
-    private fun fetchRemoteRepository() {
+    fun fetchRemoteRepository() {
         disposable = backendManager.getSongs()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -61,6 +62,7 @@ class AlbumListViewModel(var backendManager: BackendManager, var dao: SongDAO?) 
                         },
                         { error ->
                             Timber.e("Error No data fetched => ${error.localizedMessage}")
+                            albums.value = arrayListOf()
                         }
                 )
     }

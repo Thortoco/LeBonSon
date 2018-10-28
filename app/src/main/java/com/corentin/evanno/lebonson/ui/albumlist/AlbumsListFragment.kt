@@ -62,6 +62,12 @@ class AlbumsListFragment : Fragment(), AlbumsListAdapter.Listener {
         viewModel?.albums()?.observe(this, Observer {
             handleData(it)
         })
+        reload_button.setOnClickListener {
+            viewModel?.fetchRemoteRepository()
+            reload_button.visibility = View.INVISIBLE
+            loading_progress.visibility = View.VISIBLE
+            no_albums_placeholder.visibility = View.INVISIBLE
+        }
     }
 
     override fun onDestroy() {
@@ -70,8 +76,20 @@ class AlbumsListFragment : Fragment(), AlbumsListAdapter.Listener {
     }
 
     private fun handleData(albums: List<Album>) {
-        adapter = AlbumsListAdapter(albums, context, this)
-        albums_list.adapter = adapter
+        if (albums.isEmpty()) {
+            loading_progress.visibility = View.INVISIBLE
+            albums_list.visibility = View.INVISIBLE
+            reload_button.visibility = View.VISIBLE
+            no_albums_placeholder.visibility = View.VISIBLE
+
+        } else {
+            loading_progress.visibility = View.INVISIBLE
+            albums_list.visibility = View.VISIBLE
+            reload_button.visibility = View.INVISIBLE
+            no_albums_placeholder.visibility = View.INVISIBLE
+            adapter = AlbumsListAdapter(albums, context, this)
+            albums_list.adapter = adapter
+        }
     }
 
     // region AlbumsListAdapter.Listener
